@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"> <!-- Corrected charset attribute -->
@@ -13,7 +13,10 @@
     <main>
         <h2>Track Your Mood</h2>
 
-        <form method="post" action="/track_mood" id="mood-tracking-form"> <!-- Updated action -->
+        <form method="post" action="/moodTracking" id="mood-tracking-form">
+
+
+
             <div class="form-group">
                 <label for="mood">How are you feeling today?</label>
                 <select id="mood" name="mood" class="form-control" required>
@@ -41,6 +44,6 @@
     </main>
     <footer></footer>
 
-    <script src="mood_statistics.js"></script> <!-- Connect mood_statistics.js -->
+    <script src="/moodTracking.js"></script> <!-- Connect moodTracking.js -->
 </body>
 </html>

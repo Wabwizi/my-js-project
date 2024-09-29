@@ -1,32 +1,53 @@
-// mood_statistics.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Sample data - replace with your actual data from the backend if available
-    const moodData = [
-        { mood: 'happy', count: 5 },
-        { mood: 'stressed', count: 3 },
-        { mood: 'sad', count: 2 },
-        { mood: 'anxious', count: 1 },
-        { mood: 'excited', count: 4 },
-        { mood: 'relaxed', count: 6 },
-        { mood: 'neutral', count: 2 },
-        { mood: 'angry', count: 1 },
-        { mood: 'frustrated', count: 1 },
-        { mood: 'tired', count: 2 },
-    ];
+    // Function to fetch mood data from the backend
+    async function fetchMoodData() {
+        try {
+            const response = await fetch('/api/moods'); // Adjust this endpoint according to your backend
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json(); // Assumes the server returns JSON data
+        } catch (error) {
+            console.error('Failed to fetch mood data:', error);
+            return [];
+        }
+    }
 
-    const latestMood = { mood: 'happy', timestamp: '2024-09-28 12:00 PM', note: 'Feeling great!' };
-    const moodTrend = [
-        { mood: 'happy', count: 3 },
-        { mood: 'stressed', count: 2 },
-    ];
+    // Function to fetch latest mood from the backend
+    async function fetchLatestMood() {
+        try {
+            const response = await fetch('/api/latestMood'); // Adjust this endpoint according to your backend
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json(); // Assumes the server returns JSON data
+        } catch (error) {
+            console.error('Failed to fetch latest mood:', error);
+            return null; 
+        }
+    }
 
-    const trendAnalysis = {
-        highStress: true,
-        recurrentSadness: false,
-        positiveTrend: true,
-    };
+    // Function to fetch mood trend from the backend
+    async function fetchMoodTrend() {
+        try {
+            const response = await fetch('/api/moodTrend'); // Adjust this endpoint according to your backend
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json(); // Assumes the server returns JSON data
+        } catch (error) {
+            console.error('Failed to fetch mood trend:', error);
+            return [];
+        }
+    }
 
+    // Function to fetch trend analysis from the backend
+    async function fetchTrendAnalysis() {
+        try {
+            const response = await fetch('/api/trendAnalysis'); // Adjust this endpoint according to your backend
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json(); // Assumes the server returns JSON data
+        } catch (error) {
+            console.error('Failed to fetch trend analysis:', error);
+            return null;
+        }
+    }
+
+    // Suggestions based on mood
     const suggestions = {
         happy: [
             "Keep up the positive vibes! 😊",
@@ -91,47 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    // Function to populate mood distribution
-    function populateMoodDistribution() {
-        const moodList = document.getElementById('mood-distribution');
-        moodData.forEach(entry => {
-            const li = document.createElement('li');
-            li.textContent = `${entry.mood}: ${entry.count} times`;
-            moodList.appendChild(li);
-        });
-    }
-
-    // Function to display the latest mood
-    function displayLatestMood() {
-        const latestMoodElement = document.getElementById('latest-mood');
-        latestMoodElement.textContent = `Your latest mood was ${latestMood.mood} on ${latestMood.timestamp}. Note: ${latestMood.note}`;
-    }
-
-    // Function to populate mood trend
-    function populateMoodTrend() {
-        const trendList = document.getElementById('mood-trend');
-        moodTrend.forEach(entry => {
-            const li = document.createElement('li');
-            li.textContent = `${entry.mood}: ${entry.count} times`;
-            trendList.appendChild(li);
-        });
-    }
-
-    // Function to display trend analysis
-    function displayTrendAnalysis() {
-        const analysisList = document.getElementById('trend-analysis');
-        analysisList.innerHTML = `
-            <li>High Stress: ${trendAnalysis.highStress ? 'Yes' : 'No'}</li>
-            <li>Recurrent Sadness: ${trendAnalysis.recurrentSadness ? 'Yes' : 'No'}</li>
-            <li>Positive Trend: ${trendAnalysis.positiveTrend ? 'Yes' : 'No'}</li>
-        `;
-    }
-
-    // Function to display mood suggestions
-    function displayMoodSuggestions() {
+    // Function to display mood suggestions based on the latest mood
+    function displayMoodSuggestions(latestMood) {
         const suggestionsList = document.getElementById('mood-suggestions');
         const userMood = latestMood.mood; // Get user's latest mood for suggestions
         const userSuggestions = suggestions[userMood] || ["Take care of yourself, and remember to stay balanced."];
+        suggestionsList.innerHTML = ''; // Clear previous suggestions
         userSuggestions.forEach(suggestion => {
             const li = document.createElement('li');
             li.textContent = suggestion;
@@ -139,26 +125,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Function to populate recent moods
-    function populateRecentMoods() {
-        const recentMoodsList = document.getElementById('recent-moods');
-        const recentMoods = [
-            { mood: 'happy', timestamp: '2024-09-27' },
-            { mood: 'stressed', timestamp: '2024-09-26' },
-            // Add more recent moods...
-        ];
-        recentMoods.forEach(entry => {
+    // Function to populate mood distribution
+    function populateMoodDistribution(moodData) {
+        const moodList = document.getElementById('mood-distribution');
+        moodList.innerHTML = ''; // Clear previous entries
+        moodData.forEach(entry => {
             const li = document.createElement('li');
-            li.textContent = `${entry.mood} on ${entry.timestamp}`;
-            recentMoodsList.appendChild(li);
+            li.textContent = `${entry.mood}: ${entry.count || 0}`; // Assuming moodData contains mood and count
+            moodList.appendChild(li);
         });
     }
 
-    // Call functions to populate data
-    populateMoodDistribution();
-    displayLatestMood();
-    populateMoodTrend();
-    displayTrendAnalysis();
-    displayMoodSuggestions();
-    populateRecentMoods();
+    // Function to display the latest mood
+    function displayLatestMood(latestMood) {
+        const latestMoodElement = document.getElementById('latest-mood');
+        if (latestMood) {
+            latestMoodElement.textContent = `Your latest mood was ${latestMood.mood} on ${latestMood.timestamp}. Note: ${latestMood.note || 'No note'}`;
+        } else {
+            latestMoodElement.textContent = "No latest mood entry found.";
+        }
+    }
+
+    // Function to populate mood trend
+    function populateMoodTrend(moodTrend) {
+        const trendList = document.getElementById('mood-trend');
+        trendList.innerHTML = ''; // Clear previous entries
+        moodTrend.forEach(entry => {
+            const li = document.createElement('li');
+            li.textContent = `${entry.date}: ${entry.mood}`; // Assuming moodTrend contains date and mood
+            trendList.appendChild(li);
+        });
+    }
+
+    // Function to display trend analysis
+    function displayTrendAnalysis(trendAnalysis) {
+        const analysisList = document.getElementById('trend-analysis');
+        analysisList.innerHTML = ''; // Clear previous entries
+        if (trendAnalysis) {
+            analysisList.innerHTML = `
+                <li>High Stress: ${trendAnalysis.highStress ? 'Yes' : 'No'}</li>
+                <li>Recurrent Sadness: ${trendAnalysis.recurrentSadness ? 'Yes' : 'No'}</li>
+                <li>Positive Trend: ${trendAnalysis.positiveTrend ? 'Yes' : 'No'}</li>
+            `;
+        } else {
+            analysisList.innerHTML = '<li>No trend analysis available.</li>';
+        }
+    }
+
+    // Main function to fetch all data and display it
+    async function init() {
+        const moodData = await fetchMoodData();       // Fetch mood data from the backend
+        const latestMood = await fetchLatestMood();   // Fetch the latest mood from the backend
+        const moodTrend = await fetchMoodTrend();     // Fetch mood trend data from the backend
+        const trendAnalysis = await fetchTrendAnalysis(); // Fetch trend analysis data from the backend
+
+        // Populate UI with fetched data
+        populateMoodDistribution(moodData); // Populate mood distribution
+        if (latestMood) {
+            displayLatestMood(latestMood);   // Display the latest mood
+            displayMoodSuggestions(latestMood); // Display mood suggestions based on the latest mood
+        }
+        populateMoodTrend(moodTrend);       // Populate mood trend
+        if (trendAnalysis) {
+            displayTrendAnalysis(trendAnalysis); // Display trend analysis
+        }
+    }
+
+    // Call the init function to fetch data and populate the UI
+    init();
 });

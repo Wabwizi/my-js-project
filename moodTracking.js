@@ -1,19 +1,7 @@
-// mood_statistics.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Log to console to indicate the mood statistics page has loaded
-    console.log('Mood statistics page loaded.');
+    const moodTrackingForm = document.getElementById('mood-tracking-form');
 
-    // Example: Show additional tips on button click (you can add a button in the HTML for this)
-    const tipButton = document.getElementById('get-tips-button');
-    if (tipButton) {
-        tipButton.addEventListener('click', () => {
-            alert('Remember to check in with yourself regularly! Consistent tracking can lead to better insights.');
-        });
-    }
-
-    // Handle mood tracking form submission
-    const moodTrackingForm = document.getElementById('mood-tracking-form'); // Make sure your form has this ID
     if (moodTrackingForm) {
         moodTrackingForm.addEventListener('submit', async (event) => {
             event.preventDefault(); // Prevent the default form submission
@@ -22,26 +10,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = Object.fromEntries(formData.entries());
 
             try {
-                const response = await fetch('/mood/submit', {
+                // Provide feedback that the submission is in progress
+                const submitButton = moodTrackingForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true; // Disable the button to prevent multiple submissions
+                submitButton.textContent = 'Submitting...';
+
+                // Send mood data using Fetch API
+                const response = await fetch('/moodTracking', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: JSON.stringify(data),
+                    body: new URLSearchParams(data),
                 });
 
+                // Re-enable the button after the request is completed
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
+
                 if (response.ok) {
-                    // Redirect to mood statistics after successful submission
-                    window.location.href = './mood_statistics.html'; // Ensure this path is correct
+                    alert('Mood recorded successfully! Redirecting to mood statistics...');
+                    window.location.href = '/moodStatistics.html'; // Redirect to mood statistics page
                 } else {
-                    const errorMessage = await response.text();
-                    alert(`Error: ${errorMessage}`);
+                    const errorText = await response.text();
+                    alert(`Failed to record mood: ${errorText}`);
                 }
             } catch (error) {
-                console.error('Error during mood tracking:', error);
-                alert('Submission failed. Please try again.');
+                console.error('Error submitting mood data:', error);
+                alert('An error occurred while submitting your mood. Please try again.');
+                
+                // Re-enable the button in case of an error
+                const submitButton = moodTrackingForm.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
             }
         });
     }
 });
-
